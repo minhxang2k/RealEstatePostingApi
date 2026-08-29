@@ -1,0 +1,143 @@
+@model IEnumerable<RealEstatePostingApi.Model.Post>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Account_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Content)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Latitude)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Longitude)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.City_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.District_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ward_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Street_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Property_Type_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Transaction_Type_Assignment_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Is_Recommended)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status_Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.View_Count)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Created_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Updated_Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Delete_Scheduled_At)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.Account_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Content)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Latitude)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Longitude)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.City_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.District_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Ward_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Street_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Property_Type_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Transaction_Type_Assignment_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Is_Recommended)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Status_Id)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.View_Count)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Created_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Updated_Date)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Delete_Scheduled_At)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
