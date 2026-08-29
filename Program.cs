@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using RealEstatePostingApi.Context;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,22 @@ var conString = builder.Configuration.GetConnectionString("DefaultConnection") ?
 builder.Services.AddDbContext<AppDbContext>(options => 
 options.UseSqlServer(conString)) ;
 
+//heal check middleware
+var hc = builder.Services.AddHealthChecks();
+
+//if the application is runing
+hc.AddCheck(
+    name: "self-live",
+    check: () => HealthCheckResult.Healthy("Application is live"),
+    tags: new[] { "live" }
+    );
+
+//if the application can serve requests
+hc.AddCheck(
+    name: "self-ready",
+    check: () => HealthCheckResult.Healthy("Application is ready to serve"),
+    tags: new[] { "ready" }
+    );
 
 var app = builder.Build();
 
@@ -27,8 +45,22 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseHttpsRedirection();
 }
-app.UseHttpsRedirection();
+
+//app.UseHttpsRedirection();
+
+app.UseHealthChecks("/health", new HealthCheckOptions
+{
+    AllowCachingResponses = false,
+    Predicate = r => r.Tags.Contains("live"),
+});
+
+app.UseHealthChecks("/ready", new HealthCheckOptions
+{
+    AllowCachingResponses = false,
+    Predicate = r => r.Tags.Contains("ready"),
+});
 
 app.UseAuthorization();
 

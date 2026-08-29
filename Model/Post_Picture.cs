@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public int Post_Id { get; set; }
         public string Image_Url { get; set; } = string.Empty;
-        public string Picture_Type { get; set; }
+        public string Picture_Type { get; set; } = string.Empty;
         public bool Is_Thumbnail { get; set; }
         public DateTime Created_Date { get; set; } 
         public DateTime Updated_Date { get; set; }
