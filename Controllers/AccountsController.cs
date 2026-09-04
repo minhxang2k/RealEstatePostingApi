@@ -14,8 +14,9 @@ public class AccountsController : Controller
     {
         _context = context;
     }
-    
+
     // GET: ACCOUNTS
+   
     public async Task<IActionResult> Index()    
     {
         return View(await _context.Account.ToListAsync());

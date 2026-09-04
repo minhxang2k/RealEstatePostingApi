@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public int User_Id { get; set; }
         public int Post_Id { get; set; }
-        public DateTime Created_Date { get; set; } = DateTime.Now;
+        public DateTime Created_Date { get; set; }
+
     }
 }

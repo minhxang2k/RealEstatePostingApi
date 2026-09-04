@@ -9,6 +9,6 @@
         public string Avatar_Url { get; set; } = string.Empty;
         public string Sex { get; set; } = string.Empty;
         public DateTime Created_Date { get; set; }
-        public DateTime Updated_Date { get; set; }
+        public DateTime? Updated_Date { get; set; }
     }
 }

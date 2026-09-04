@@ -11,6 +11,6 @@
         public decimal Facade { get; set; }
         public int Total_Floor { get; set; }
         public DateTime Created_Date { get; set; }
-        public DateTime Updated_Date { get; set; }
+        public DateTime? Updated_Date { get; set; }
     }
 }

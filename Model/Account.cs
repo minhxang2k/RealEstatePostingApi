@@ -9,7 +9,7 @@
         public int Provider_User_Id { get; set; } 
         public int Role_Id { get; set; }
         public bool Is_Active { get; set; }
-        public DateTime Created_Date { get; set; } 
-        public DateTime Updated_Date { get;set; }
+        public DateTime Created_Date { get; set; }
+        public DateTime? Updated_Date { get; set; }
     }
 }

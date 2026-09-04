@@ -20,7 +20,7 @@
         public int Status_Id { get; set; }
         public int View_Count { get; set; }
         public DateTime Created_Date { get; set; }
-        public DateTime Updated_Date { get; set; }
-        public DateTime Delete_Scheduled_At { get; set; }
+        public DateTime? Updated_Date { get; set; }
+        public DateTime? Delete_Scheduled_At { get; set; }
     }
 }

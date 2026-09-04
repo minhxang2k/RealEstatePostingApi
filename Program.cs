@@ -19,6 +19,8 @@ builder.Services.AddOpenApi();
 var conString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
     throw new InvalidOperationException("Connection string 'DefaultConnection'" 
     +" not found.");
+
+// Add connection string to the DbContext
 builder.Services.AddDbContext<AppDbContext>(options => 
 options.UseSqlServer(conString)) ;
 

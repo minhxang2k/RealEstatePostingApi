@@ -8,9 +8,9 @@ using RealEstatePostingApi.Context;
 [Route("[controller]")]
 public class PostsController : Controller
 {
-    private readonly AppDbContext _context;
+    private readonly RealEstatePostingApi.Context.AppDbContext _context;
 
-    public PostsController(AppDbContext context)
+    public PostsController(RealEstatePostingApi.Context.AppDbContext context)
     {
         _context = context;
     }

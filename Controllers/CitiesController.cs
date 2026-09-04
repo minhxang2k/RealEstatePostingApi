@@ -3,152 +3,137 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
+using RealEstatePostingApi.DTO;
 
 [ApiController]
 [Route("[controller]")]
 public class CitiesController : Controller
 {
-    private readonly AppDbContext _context;
+    private readonly RealEstatePostingApi.Context.AppDbContext _context;
 
-    
-    public CitiesController(AppDbContext context)
+
+    public CitiesController(RealEstatePostingApi.Context.AppDbContext context)
     {
         _context = context;
     }
 
     // GET: CITYS
     [HttpGet]
-    public async Task<IActionResult> Index()    
+    public async Task<ActionResult<IEnumerable<City>>> GetCities()
     {
-        return View(await _context.City.ToListAsync());
+        var cities = await _context.City
+            .AsNoTracking()
+            .ToListAsync();
+
+        return Ok(cities);
     }
 
-    // GET: CITYS/Details/5
-    public async Task<IActionResult> Details(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
+    //[HttpGet("{id}")]
+    //public async Task<ActionResult<City>> GetCitiesById(int id)
+    //{
+    //    var cities = await _context.City.FirstOrDefaultAsync(m=>m.Id==id);
 
-        var city = await _context.City
-            .FirstOrDefaultAsync(m => m.Id == id);
-        if (city == null)
-        {
-            return NotFound();
-        }
-
-        return View(city);
-    }
-
-    // GET: CITYS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
+    //    return Ok(cities);
+    //}
 
     // POST: CITYS/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Name,Created_Date,Updated_Date")] City city)
+    public async Task<ActionResult<City>> Create([FromBody] CreateCityDTO dto)
     {
-        if (ModelState.IsValid)
+        try
         {
-            _context.Add(city);
+            var city = new City
+            {
+                Name = dto.Name,
+                Created_Date = DateTime.Now,
+                Updated_Date = null
+            };
+            _context.City.Add(city);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return CreatedAtAction(
+                  nameof(GetCities),
+                  new { id = city.Id },
+                  city
+              );
         }
-        return View(city);
+        catch (Exception ex)
+        {
+            throw new Exception($"An error occurred while creating the city: {ex.Message}");
+        }
+       
+
+        //if (ModelState.IsValid)
+        //{
+        //    var city = new City
+        //    {
+        //    _context.Add(city);
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
+        //return View(city);
     }
 
     // GET: CITYS/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<City>> Update(int? id, UpdateCityDTO updateCityDTO)
     {
-        if (id == null)
+        try
         {
-            return NotFound();
-        }
+            var city = await _context.City.FindAsync(id);
+            if (city == null)
+            {
+                return NotFound();
+            }
+            city.Name = updateCityDTO.Name;
+            city.Updated_Date = DateTime.Now;
 
-        var city = await _context.City.FindAsync(id);
-        if (city == null)
+            await _context.SaveChangesAsync();
+            return Ok(city);
+            }
+        catch (Exception e)
         {
-            return NotFound();
+            throw new Exception($"An error occurred while updating the city: {e.Message}");
         }
-        return View(city);
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCity(int id)
+    {
+        try
+        {
+            var city = await _context.City.FindAsync(id);
+
+            if (city == null)
+            {
+                return NotFound();
+            }
+
+            _context.City.Remove(city);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+       
+    }
+
+
 
     // POST: CITYS/Edit/5
     // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Name,Created_Date,Updated_Date")] City city)
-    {
-        if (id != city.Id)
-        {
-            return NotFound();
-        }
 
-        if (ModelState.IsValid)
-        {
-            try
-            {
-                _context.Update(city);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CityExists(city.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
-        return View(city);
-    }
 
     // GET: CITYS/Delete/5
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
 
-        var city = await _context.City
-            .FirstOrDefaultAsync(m => m.Id == id);
-        if (city == null)
-        {
-            return NotFound();
-        }
-
-        return View(city);
-    }
 
     // POST: CITYS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? id)
-    {
-        var city = await _context.City.FindAsync(id);
-        if (city != null)
-        {
-            _context.City.Remove(city);
-        }
 
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
 
-    private bool CityExists(int? id)
-    {
-        return _context.City.Any(e => e.Id == id);
-    }
 }
