@@ -136,10 +136,5 @@ public class DistrictsController : ControllerBase
        
     }
     // POST: DISTRICTS/Delete/5
-   
-
-    private bool DistrictExists(int? id)
-    {
-        return _context.District.Any(e => e.Id == id);
-    }
+  
 }
