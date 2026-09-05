@@ -36,6 +36,66 @@ namespace RealEstatePostingApi.Context
             {
                 entity.Property(p => p.Latitude).HasPrecision(8, 6);
                 entity.Property(p => p.Longitude).HasPrecision(9, 6);
+
+                entity.HasOne(p => p.Account)
+                    .WithMany(a => a.Posts)
+                    .HasForeignKey(p => p.Account_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.City)
+                    .WithMany(c => c.Posts)
+                    .HasForeignKey(p => p.City_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(p => p.District)
+                    .WithMany(d => d.Posts)
+                    .HasForeignKey(p => p.District_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(p => p.Ward)
+                    .WithMany(w => w.Posts)
+                    .HasForeignKey(p => p.Ward_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(p => p.Street)
+                    .WithMany(s => s.Posts)
+                    .HasForeignKey(p => p.Street_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(p => p.Property_Type)
+                    .WithMany(pt => pt.Posts)
+                    .HasForeignKey(p => p.Property_Type_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(p => p.Transaction_Type_Assignment)
+                    .WithMany(tt => tt.Posts)
+                    .HasForeignKey(p => p.Transaction_Type_Assignment_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(p => p.Status)
+                    .WithMany(s => s.Posts)
+                    .HasForeignKey(p => p.Status_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(p=>p.Post_Details)
+                    .WithOne(pd => pd.Post)
+                    .HasForeignKey<Post_Detail>(pd => pd.Post_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(p => p.Post_Pictures)
+                    .WithOne(pp => pp.Post)
+                    .HasForeignKey(pp => pp.Post_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.Post_Video)
+                    .WithOne(pp => pp.Post)
+                    .HasForeignKey<Post_Video>(pp => pp.Post_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(p => p.Save_Listings)
+                    .WithOne(p => p.Post)
+                    .HasForeignKey(p => p.Post_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Office_Location>(entity =>
