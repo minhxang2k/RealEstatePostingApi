@@ -28,14 +28,31 @@ public class CitiesController : Controller
         return Ok(cities);
     }
 
-    //[HttpGet("{id}")]
-    //public async Task<ActionResult<City>> GetCitiesById(int id)
-    //{
-    //    var cities = await _context.City.FirstOrDefaultAsync(m=>m.Id==id);
+    [HttpGet("{cityId}/districts")]
+    public async Task<ActionResult<IEnumerable<District>>> GetDistrictsByCity(int cityId)
+    {
+        try
+        {
+            var cityExists = await _context.City
+            .AnyAsync(c => c.Id == cityId);
 
-    //    return Ok(cities);
-    //}
+            if (!cityExists)
+            {
+                return NotFound("City not found.");
+            }
 
+            var districts = await _context.District
+                .Where(d => d.City_Id == cityId)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Ok(districts);
+        }catch(Exception e)
+        {
+            throw new Exception($"An error occurred while finding district by city id: {e.Message}");
+        }
+        
+    }
     // POST: CITYS/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -63,20 +80,8 @@ public class CitiesController : Controller
         {
             throw new Exception($"An error occurred while creating the city: {ex.Message}");
         }
-       
-
-        //if (ModelState.IsValid)
-        //{
-        //    var city = new City
-        //    {
-        //    _context.Add(city);
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
-        //return View(city);
     }
 
-    // GET: CITYS/Edit/5
     [HttpPut("{id}")]
     public async Task<ActionResult<City>> Update(int? id, UpdateCityDTO updateCityDTO)
     {
@@ -123,17 +128,5 @@ public class CitiesController : Controller
         }
        
     }
-
-
-
-    // POST: CITYS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-
-
-    // GET: CITYS/Delete/5
-
-
-    // POST: CITYS/Delete/5
-
 
 }
