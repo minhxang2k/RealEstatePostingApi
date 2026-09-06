@@ -32,6 +32,67 @@ namespace RealEstatePostingApi.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Account>(entity =>
+            {
+                entity.Property(a => a.Email).HasMaxLength(255);
+                entity.Property(a => a.Password_Hash).HasMaxLength(255);
+                entity.Property(a => a.Auth_Provider).HasMaxLength(50);
+                entity.HasMany(p => p.Posts)
+                    .WithOne(a => a.Account)
+                    .HasForeignKey(p => p.Account_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+                entity.HasMany(a => a.Password_Resets)
+                    .WithOne(pr => pr.Account)
+                    .HasForeignKey(pr => pr.Account_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(a => a.Role)
+                    .WithMany(r => r.Accounts)
+                    .HasForeignKey(a => a.Role_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(a => a.User)
+                    .WithOne(u => u.Account)
+                    .HasForeignKey<User>(u => u.Account_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(a => a.Setting)
+                    .WithOne(s => s.Account)
+                    .HasForeignKey<Setting>(s => s.Account_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {  
+                entity.HasOne(a => a.Account)
+                    .WithOne(u => u.User)
+                    .HasForeignKey<User>(u => u.Account_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(u => u.Save_Listings)
+                    .WithOne(sl => sl.User)
+                    .HasForeignKey(sl => sl.User_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<Setting>(entity =>
+            {
+                entity.HasOne(s => s.Account)
+                    .WithOne(a => a.Setting)
+                    .HasForeignKey<Setting>(s => s.Account_Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Save_Listing>(entity =>
+            {
+                entity.HasOne(sl => sl.User)
+                    .WithMany(u => u.Save_Listings)
+                    .HasForeignKey(sl => sl.User_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(sl => sl.Post)
+                    .WithMany(p => p.Save_Listings)
+                    .HasForeignKey(sl => sl.Post_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
             modelBuilder.Entity<Post>(entity =>
             {
                 entity.Property(p => p.Latitude).HasPrecision(8, 6);
@@ -77,7 +138,7 @@ namespace RealEstatePostingApi.Context
                     .HasForeignKey(p => p.Status_Id)
                     .OnDelete(DeleteBehavior.NoAction);
 
-                entity.HasOne(p=>p.Post_Details)
+                entity.HasOne(p => p.Post_Details)
                     .WithOne(pd => pd.Post)
                     .HasForeignKey<Post_Detail>(pd => pd.Post_Id)
                     .OnDelete(DeleteBehavior.Cascade);
@@ -95,7 +156,58 @@ namespace RealEstatePostingApi.Context
                 entity.HasMany(p => p.Save_Listings)
                     .WithOne(p => p.Post)
                     .HasForeignKey(p => p.Post_Id)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<City>(entity =>
+            {
+                entity.Property(c => c.Name).HasMaxLength(255);
+
+                entity.HasMany(p => p.Posts)
+                    .WithOne(c => c.City)
+                    .HasForeignKey(p => p.City_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasMany(c => c.Districts)
+                    .WithOne(d => d.City)
+                    .HasForeignKey(d => d.City_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<District>(entity =>
+            {
+                entity.HasOne(p => p.City)
+                    .WithMany(c => c.Districts)
+                    .HasForeignKey(p => p.City_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasMany(p => p.Posts)
+                    .WithOne(d => d.District)
+                    .HasForeignKey(p => p.District_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasMany(d => d.Wards)
+                    .WithOne(w => w.District)
+                    .HasForeignKey(w => w.District_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
+
+            modelBuilder.Entity<Ward>(entity =>
+            {
+                entity.HasMany(p => p.Posts)
+                    .WithOne(w => w.Ward)
+                    .HasForeignKey(p => p.Ward_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(w => w.District)
+                    .WithMany(d => d.Wards)
+                    .HasForeignKey(w => w.District_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasMany(w => w.Streets)
+                    .WithOne(s => s.Ward)
+                    .HasForeignKey(s => s.Ward_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Office_Location>(entity =>
