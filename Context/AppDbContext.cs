@@ -40,7 +40,7 @@ namespace RealEstatePostingApi.Context
                 entity.HasOne(p => p.Account)
                     .WithMany(a => a.Posts)
                     .HasForeignKey(p => p.Account_Id)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(p => p.City)
                     .WithMany(c => c.Posts)
