@@ -21,6 +21,7 @@ public class PostsController : Controller
     {
         return View(await _context.Post.ToListAsync());
     }
+
 }
 //    // GET: POSTS/Details/5
 //    public async Task<IActionResult> Details(int? id)

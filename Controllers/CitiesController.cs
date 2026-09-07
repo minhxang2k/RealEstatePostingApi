@@ -21,10 +21,7 @@ public class CitiesController : Controller
     [HttpGet]
     public async Task<ActionResult<IEnumerable<City>>> GetCities()
     {
-        var cities = await _context.City
-            .AsNoTracking()
-            .ToListAsync();
-
+        var cities = await _context.City.ToListAsync();
         return Ok(cities);
     }
 
@@ -70,11 +67,12 @@ public class CitiesController : Controller
             _context.City.Add(city);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(
-                  nameof(GetCities),
-                  new { id = city.Id },
-                  city
-              );
+            return Ok(city);
+            //return CreatedAtAction(
+            //      nameof(GetCities),
+            //      new { id = city.Id },
+            //      city
+            //  );
         }
         catch (Exception ex)
         {
@@ -124,7 +122,7 @@ public class CitiesController : Controller
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest($"An error occurred while deleting the city: {ex.Message}");
         }
        
     }

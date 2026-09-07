@@ -3,8 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
+using RealEstatePostingApi.DTO;
+using Microsoft.Identity.Client;
 
-public class StreetsController : Controller
+[ApiController]
+[Route("[controller]")]
+public class StreetsController : ControllerBase
 {
     private readonly AppDbContext _context;
 
@@ -14,123 +18,98 @@ public class StreetsController : Controller
     }
 
     // GET: STREETS
-    public async Task<IActionResult> Index()    
+    [HttpGet]
+    public async Task<ActionResult<Street>> Index()
     {
-        return View(await _context.Street.ToListAsync());
+        try
+        {
+            var streets = await _context.Street.ToListAsync();
+            if (streets == null || streets.Count == 0)
+            {
+                return NotFound("No streets found.");
+            }
+            return Ok(streets);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"there an error occurred while listing street list: {e.Message}");
+        }
+
     }
 
     // GET: STREETS/Details/5
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Street>> Details(int? id)
     {
         if (id == null)
         {
             return NotFound();
         }
 
-        var street = await _context.Street
+        var street = await _context.Street  
             .FirstOrDefaultAsync(m => m.Id == id);
         if (street == null)
         {
-            return NotFound();
+            return NotFound("can not find because its does not exists");
         }
 
-        return View(street);
+        return Ok(street);
     }
 
     // GET: STREETS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: STREETS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Ward_Id,Name,Created_Date,Updated_Date,Ward,Posts")] Street street)
+    public async Task<ActionResult<Street>> Create([FromBody] CreateStreetDto dto)
     {
-        if (ModelState.IsValid)
+        try
         {
-            _context.Add(street);
+            var street = new Street
+            {
+                Ward_Id = dto.Ward_Id,
+                Name = dto.Name,
+                Created_Date = DateTime.Now,
+            };
+            _context.Street.Add(street);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok(street);
         }
-        return View(street);
+        catch (Exception ex)
+        {
+            throw new Exception("an error occurred while creating the street: " + ex.Message);
+        }
     }
-
-    // GET: STREETS/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateStreetDto dto)
     {
-        if (id == null)
+        try
         {
-            return NotFound();
-        }
-
-        var street = await _context.Street.FindAsync(id);
-        if (street == null)
-        {
-            return NotFound();
-        }
-        return View(street);
-    }
-
-    // POST: STREETS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Ward_Id,Name,Created_Date,Updated_Date,Ward,Posts")] Street street)
-    {
-        if (id != street.Id)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
+            var street = await _context.Street.FindAsync(id);
+            if (street == null)
             {
-                _context.Update(street);
-                await _context.SaveChangesAsync();
+                return NotFound("can not find because its does not exists");
             }
-            catch (DbUpdateConcurrencyException)
+
+            if (dto.Name != null)
             {
-                if (!StreetExists(street.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                street.Name = dto.Name;
             }
-            return RedirectToAction(nameof(Index));
-        }
-        return View(street);
-    }
 
-    // GET: STREETS/Delete/5
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id == null)
+            if (dto.Ward_Id.HasValue)
+            {
+                street.Ward_Id = dto.Ward_Id.Value;
+            }
+
+            street.Updated_Date = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return Ok(street);
+        }
+        catch (Exception e)
         {
-            return NotFound();
+            throw new Exception($"an error occurred while updating street: {e.Message}");
         }
-
-        var street = await _context.Street
-            .FirstOrDefaultAsync(m => m.Id == id);
-        if (street == null)
-        {
-            return NotFound();
-        }
-
-        return View(street);
     }
-
     // POST: STREETS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
+    [HttpDelete]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         var street = await _context.Street.FindAsync(id);

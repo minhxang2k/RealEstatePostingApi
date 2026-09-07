@@ -18,7 +18,7 @@ namespace RealEstatePostingApi.Context
         public virtual DbSet<Post_Picture> Post_Picture { get; set; }
         public virtual DbSet<Post_Video> Post_Video { get; set; }
         public virtual DbSet<Property_Type> Property_Type { get; set; }
-        public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<Roles> Role { get; set; }
         public virtual DbSet<Save_Listing> Save_Listing { get; set; }
         public virtual DbSet<Setting> Setting  { get; set; }
         public virtual DbSet<Status> Status  { get; set; }
