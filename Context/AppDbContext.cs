@@ -138,56 +138,56 @@ namespace RealEstatePostingApi.Context
                     .OnDelete(DeleteBehavior.NoAction);
             });
 
-            //modelBuilder.Entity<City>(entity =>
-            //{
-            //    entity.Property(c => c.Name).HasMaxLength(255);
+            modelBuilder.Entity<City>(entity =>
+            {
+                entity.Property(c => c.Name).HasMaxLength(255);
 
-            //    entity.HasMany(p => p.Posts)
-            //        .WithOne(c => c.City)
-            //        .HasForeignKey(p => p.City_Id)
-            //        .OnDelete(DeleteBehavior.NoAction);
+                entity.HasMany(p => p.Posts)
+                    .WithOne(c => c.City)
+                    .HasForeignKey(p => p.City_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
 
-            //    entity.HasMany(c => c.Districts)
-            //        .WithOne(d => d.City)
-            //        .HasForeignKey(d => d.City_Id)
-            //        .OnDelete(DeleteBehavior.NoAction);
-            //});
+                entity.HasMany(c => c.Districts)
+                    .WithOne(d => d.City)
+                    .HasForeignKey(d => d.City_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
 
-            //modelBuilder.Entity<District>(entity =>
-            //{
-            //    entity.HasOne(p => p.City)
-            //        .WithMany(c => c.Districts)
-            //        .HasForeignKey(p => p.City_Id)
-            //        .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<District>(entity =>
+            {
+                entity.HasOne(p => p.City)
+                    .WithMany(c => c.Districts)
+                    .HasForeignKey(p => p.City_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
 
-            //    entity.HasMany(p => p.Posts)
-            //        .WithOne(d => d.District)
-            //        .HasForeignKey(p => p.District_Id)
-            //        .OnDelete(DeleteBehavior.NoAction);
+                entity.HasMany(p => p.Posts)
+                    .WithOne(d => d.District)
+                    .HasForeignKey(p => p.District_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
 
-            //    entity.HasMany(d => d.Wards)
-            //        .WithOne(w => w.District)
-            //        .HasForeignKey(w => w.District_Id)
-            //        .OnDelete(DeleteBehavior.NoAction);
-            //});
+                entity.HasMany(d => d.Wards)
+                    .WithOne(w => w.District)
+                    .HasForeignKey(w => w.District_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
 
-            //modelBuilder.Entity<Ward>(entity =>
-            //{
-            //    entity.HasMany(p => p.Posts)
-            //        .WithOne(w => w.Ward)
-            //        .HasForeignKey(p => p.Ward_Id)
-            //        .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Ward>(entity =>
+            {
+                entity.HasMany(p => p.Posts)
+                    .WithOne(w => w.Ward)
+                    .HasForeignKey(p => p.Ward_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
 
-            //    entity.HasOne(w => w.District)
-            //        .WithMany(d => d.Wards)
-            //        .HasForeignKey(w => w.District_Id)
-            //        .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(w => w.District)
+                    .WithMany(d => d.Wards)
+                    .HasForeignKey(w => w.District_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
 
-            //    entity.HasMany(w => w.Streets)
-            //        .WithOne(s => s.Ward)
-            //        .HasForeignKey(s => s.Ward_Id)
-            //        .OnDelete(DeleteBehavior.NoAction);
-            //});
+                entity.HasMany(w => w.Streets)
+                    .WithOne(s => s.Ward)
+                    .HasForeignKey(s => s.Ward_Id)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
 
             modelBuilder.Entity<Office_Location>(entity =>
             {

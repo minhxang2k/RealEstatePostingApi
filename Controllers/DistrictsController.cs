@@ -20,7 +20,20 @@ public class DistrictsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<District>> Index()    
     {
-        return Ok(await _context.District.ToListAsync());
+        try
+        {
+            var districts = await _context.District.ToListAsync();
+            if (districts == null || districts.Count == 0)
+            {
+                return NotFound("No districts found.");
+            }
+            return Ok(districts);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"An error occurred while listing district list: {ex.Message}");
+        }
+       
     }
 
     [HttpGet("{id}")]
@@ -36,7 +49,7 @@ public class DistrictsController : ControllerBase
             return Ok(district);
         }catch(Exception e)
         {
-            throw new Exception(e.Message);
+            throw new Exception($"An error occurred while selecting district by city ID: {e.Message}");
         }
        
     }
@@ -45,17 +58,25 @@ public class DistrictsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<District>> Create([FromBody] CreateDistrictDto dto)
     {
-        var district = new District
+        try
         {
-            City_Id = dto.City_Id,
-            Name = dto.Name,
-            Created_Date = DateTime.Now
-        };
+            var district = new District
+            {
+                City_Id = dto.City_Id,
+                Name = dto.Name,
+                Created_Date = DateTime.Now
+            };
 
-        _context.District.Add(district);
-        await _context.SaveChangesAsync();
+            _context.District.Add(district);
+            await _context.SaveChangesAsync();
 
-        return Ok(district);
+            return Ok(district);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"An error occurred while creating the district: {e.Message}");
+        }
+       
     }
 
     // POST: DISTRICTS/Create
@@ -131,7 +152,7 @@ public class DistrictsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest($"An error occurred while deleting the district: {ex.Message}");
         }
        
     }
