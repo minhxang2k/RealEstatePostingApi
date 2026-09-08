@@ -45,48 +45,61 @@ public class AccountsController : Controller
             throw new Exception($"An error occurred while logging in: {ex.Message}");
         }
     }
-
-    [HttpPost("Create")]
-    //[Authorize(Roles = "Admin")]
-    public async Task<ActionResult<Account>> Create([FromBody] CreateAccountDto dto)
+    public class RegisterDto
     {
-        try
-        {
-            var existingAccount = await _context.Account
-     .FirstOrDefaultAsync(a => a.Email == dto.Email);
+       public CreateAccountDto account { get; set; } 
+        public CreateUserDto user { get; set; }
+    }
 
-            if (dto == null)
-            {
-                return BadRequest("Account data is null.");
-            }
-            if (existingAccount != null)
-            {
-                return BadRequest("An account with this email already exists.");
-            }
-            var account = new Account
-            {
-                Email = dto.Email,
-                Password_Hash = HashPassword(dto.Password),
-                Role_Id = dto.Role,
-                Auth_Provider = dto.Auth_Provider,
-                Provider_User_Id = dto.Provider_User_Id,
-                Is_Active = true,
-                Created_Date = DateTime.Now,
-            };
-            _context.Account.Add(account);
-            await _context.SaveChangesAsync();
+    [HttpPost("Register")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> Register([FromBody] RegisterDto dto)
+    {
+        if (dto == null)
+            return BadRequest("Account data is null.");
 
-            var responseDto = new AccountResponseDto
-            {
-                Email = account.Email,
-                Role_Id = account.Role_Id
-            };
-            return CreatedAtAction(nameof(Index), new { id = account.Id }, responseDto);
-        }
-        catch (Exception ex)
+        var existingAccount = await _context.Account
+            .FirstOrDefaultAsync(a => a.Email == dto.account.Email);
+
+        if (existingAccount != null)
+            return Conflict("An account with this email already exists.");
+
+        var account = new Account
         {
-            throw new Exception($"An error occurred while creating the account: {ex.Message}");
-        }
+            Email = dto.account.Email,
+            Password_Hash = HashPassword(dto.account.Password),
+            Role_Id = 1, //admin role
+            Auth_Provider = dto.account.Auth_Provider,
+            Is_Active = true,
+            Created_Date = DateTime.Now
+        };
+
+        var user = new User
+        {
+            Account = account,
+            Username = dto.user.Username,
+            Phone_Number = string.Empty,
+            Avatar_Url = string.Empty,
+            Sex = string.Empty,
+            Created_Date = DateTime.Now
+        };
+
+        _context.Account.Add(account);
+        _context.User.Add(user);
+
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(
+            nameof(Index),
+            new { id = account.Id },
+            new
+            {
+                id = account.Id,
+                email = account.Email,
+                roleId = account.Role_Id,
+                username = user.Username
+            }
+        );
     }
 
     private string HashPassword(string input)
