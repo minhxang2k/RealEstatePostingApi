@@ -1,0 +1,60 @@
+@model RealEstatePostingApi.Model.Website_Picture
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Website_Picture</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Image_Url" class="control-label"></label>
+                <input asp-for="Image_Url" class="form-control" />
+                <span asp-validation-for="Image_Url" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Position" class="control-label"></label>
+                <input asp-for="Position" class="form-control" />
+                <span asp-validation-for="Position" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Website_Order" class="control-label"></label>
+                <input asp-for="Website_Order" class="form-control" />
+                <span asp-validation-for="Website_Order" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Is_Active" class="control-label"></label>
+                <input asp-for="Is_Active" class="form-check-input" />
+                <span asp-validation-for="Is_Active" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Created_Date" class="control-label"></label>
+                <input asp-for="Created_Date" class="form-control" />
+                <span asp-validation-for="Created_Date" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Updated_Date" class="control-label"></label>
+                <input asp-for="Updated_Date" class="form-control" />
+                <span asp-validation-for="Updated_Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

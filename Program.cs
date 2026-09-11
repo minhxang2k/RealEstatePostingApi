@@ -68,6 +68,8 @@ app.UseHealthChecks("/ready", new HealthCheckOptions
 
 app.UseAuthorization();
 
+app.UseStaticFiles();
+
 app.MapControllers();
 
 app.Run();
