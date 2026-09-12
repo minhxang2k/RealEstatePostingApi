@@ -119,5 +119,51 @@ public class WebsitePictureController : ControllerBase
         return Ok(websitePicture);
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        // Tìm record trong database
+        var websitePicture = await _context.Website_Picture
+            .FindAsync(id);
+
+        // Không tìm thấy record
+        if (websitePicture == null)
+        {
+            return NotFound("Không tìm thấy ảnh trong database.");
+        }
+
+        // Lấy đường dẫn file từ Image_Url
+        var imageUrl = websitePicture.Image_Url;
+
+        // Chuyển URL thành đường dẫn vật lý
+        var fileName = Path.GetFileName(
+            new Uri(imageUrl).LocalPath
+        );
+
+        var filePath = Path.Combine(
+            _environment.WebRootPath,
+            "uploads",
+            "website",
+            fileName
+        );
+
+        // Kiểm tra file có tồn tại không
+        if (System.IO.File.Exists(filePath))
+        {
+            // Xóa file vật lý
+            System.IO.File.Delete(filePath);
+        }
+
+        // Xóa record trong database
+        _context.Website_Picture.Remove(websitePicture);
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = "Đã xóa ảnh và record thành công.",
+            id = id
+        });
+    }
 
 }
