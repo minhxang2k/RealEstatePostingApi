@@ -17,7 +17,7 @@ public class WebsitePictureController : ControllerBase
         _environment = environment;
     }
 
-    [HttpGet]
+    [HttpGet("List")]
     // GET: WEBSITE_PICTURES
     public async Task<IActionResult> Index()
     {
@@ -76,7 +76,7 @@ public class WebsitePictureController : ControllerBase
             "website");
 
         // Nếu thư mục chưa tồn tại thì tạo
-        if (!Directory.Exists(uploadFolder))
+        if (!Directory.Exists(uploadFolder) || uploadFolder == null)
         {
             Directory.CreateDirectory(uploadFolder);
         }
@@ -102,7 +102,6 @@ public class WebsitePictureController : ControllerBase
         var imageUrl =
             $"{Request.Scheme}://{Request.Host}/uploads/website/{fileName}";
 
-        // Tạo record database
         var websitePicture = new Website_Picture
         {
             Image_Url = imageUrl,
@@ -113,7 +112,6 @@ public class WebsitePictureController : ControllerBase
             Updated_Date = null
         };
 
-        // Lưu vào database
         _context.Website_Picture.Add(websitePicture);
 
         await _context.SaveChangesAsync();
