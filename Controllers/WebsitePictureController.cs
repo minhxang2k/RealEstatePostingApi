@@ -24,73 +24,173 @@ public class WebsitePictureController : ControllerBase
         return Ok(await _context.Website_Picture.ToListAsync());
     }
 
-
     [HttpPost("Upload")]
-    public async Task<ActionResult<Website_Picture>> Upload(
-          IFormFile file,
-          [FromForm] string position,
-          [FromForm] int websiteOrder)
+    public async Task<IActionResult> Upload(
+        [FromForm] IFormFile file,
+        [FromForm] string position,
+        [FromForm] int websiteOrder)
     {
-        // Kiểm tra file
-        if (file == null || file.Length == 0)
+        var error = ValidateImage(file);
+
+        if (error != null)
         {
-            return BadRequest("Vui lòng chọn ảnh.");
+            return BadRequest(error);
         }
 
-        // Kiểm tra Position
-        if (string.IsNullOrWhiteSpace(position))
+        var imageUrl = await SaveImageAsync(file);
+
+        var picture = new Website_Picture
         {
-            return BadRequest("Position không được để trống.");
+            Image_Url = imageUrl,
+            Position = position,
+            Display_Order = websiteOrder,
+            Is_Active = true,
+            Created_Date = DateTime.Now
+        };
+
+        _context.Website_Picture.Add(picture);
+
+        await _context.SaveChangesAsync();
+
+        return Ok(picture);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(
+    int id,
+    [FromForm] IFormFile file,
+    [FromForm] string position,
+    [FromForm] int websiteOrder,
+    [FromForm] bool isActive)
+    {
+        var picture = await _context.Website_Picture
+            .FindAsync(id);
+
+        if (picture == null)
+        {
+            return NotFound("Record không tồn tại.");
         }
 
-        // Các định dạng ảnh được phép
-        var allowedExtensions = new[]
+        var error = ValidateImage(file);
+
+        if (error != null)
         {
-                ".jpg",
-                ".jpeg",
-                ".png",
-                ".webp"
-            };
+            return BadRequest(error);
+        }
+
+        // Lưu ảnh mới trước
+        var newImageUrl = await SaveImageAsync(file);
+
+        // Lưu URL ảnh cũ
+        var oldImageUrl = picture.Image_Url;
+
+        // Update record
+        picture.Image_Url = newImageUrl;
+        picture.Position = position;
+        picture.Display_Order = websiteOrder;
+        picture.Is_Active = isActive;
+        picture.Updated_Date = DateTime.Now;
+
+        await _context.SaveChangesAsync();
+
+        // Chỉ xóa ảnh cũ sau khi DB update thành công
+        DeleteImage(oldImageUrl);
+
+        return Ok(picture);
+    }
+
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var picture = await _context.Website_Picture
+            .FindAsync(id);
+
+        if (picture == null)
+        {
+            return NotFound("Record không tồn tại.");
+        }
+
+        DeleteImage(picture.Image_Url);
+
+        _context.Website_Picture.Remove(picture);
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = "Đã xóa ảnh và record.",
+            id = id
+        });
+    }
+
+    private string GetFilePath(string imageUrl)
+    {
+        var fileName = Path.GetFileName(imageUrl);
+
+        return Path.Combine(
+            _environment.WebRootPath,
+            "uploads",
+            "website",
+            fileName
+        );
+    }
+
+    //private string GetFilePath(string imageUrl)
+    //{
+    //    var fileName = Path.GetFileName(
+    //        new Uri(imageUrl).LocalPath
+    //    );
+
+    //    return Path.Combine(
+    //        _environment.WebRootPath,
+    //        "uploads",
+    //        "website",
+    //        fileName
+    //    );
+    //}
+
+    private bool ImageExists(string imageUrl)
+    {
+        var filePath = GetFilePath(imageUrl);
+
+        return System.IO.File.Exists(filePath);
+    }
+
+    private void DeleteImage(string imageUrl)
+    {
+        var filePath = GetFilePath(imageUrl);
+
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+        }
+    }
+
+    private async Task<string> SaveImageAsync(IFormFile file)
+    {
+        var uploadFolder = Path.Combine(
+            _environment.WebRootPath,
+            "uploads",
+            "website"
+        );
+
+        if (!Directory.Exists(uploadFolder))
+        {
+            Directory.CreateDirectory(uploadFolder);
+        }
 
         var extension = Path
             .GetExtension(file.FileName)
             .ToLowerInvariant();
 
-        if (!allowedExtensions.Contains(extension))
-        {
-            return BadRequest(
-                "Chỉ cho phép JPG, JPEG, PNG hoặc WEBP.");
-        }
-
-        // Giới hạn 5 MB
-        if (file.Length > 5 * 1024 * 1024)
-        {
-            return BadRequest("Ảnh không được vượt quá 5MB.");
-        }
-
-        // Đường dẫn:
-        // wwwroot/uploads/website
-        var uploadFolder = Path.Combine(
-            _environment.WebRootPath,
-            "uploads",
-            "website");
-
-        // Nếu thư mục chưa tồn tại thì tạo
-        if (!Directory.Exists(uploadFolder) || uploadFolder == null)
-        {
-            Directory.CreateDirectory(uploadFolder);
-        }
-
-        // Tạo tên file mới
-        // Không dùng tên file gốc của người dùng
         var fileName = $"{Guid.NewGuid()}{extension}";
 
-        // Đường dẫn vật lý của file
         var filePath = Path.Combine(
             uploadFolder,
-            fileName);
+            fileName
+        );
 
-        // Lưu file
         using (var stream = new FileStream(
             filePath,
             FileMode.Create))
@@ -98,72 +198,39 @@ public class WebsitePictureController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        // URL để website truy cập ảnh
-        var imageUrl =
-            $"{Request.Scheme}://{Request.Host}/uploads/website/{fileName}";
-
-        var websitePicture = new Website_Picture
-        {
-            Image_Url = imageUrl,
-            Position = position,
-            Display_Order = websiteOrder,
-            Is_Active = true,
-            Created_Date = DateTime.Now,
-            Updated_Date = null
-        };
-
-        _context.Website_Picture.Add(websitePicture);
-
-        await _context.SaveChangesAsync();
-
-        return Ok(websitePicture);
+        return $"/uploads/website/{fileName}";
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    private string? ValidateImage(IFormFile file)
     {
-        // Tìm record trong database
-        var websitePicture = await _context.Website_Picture
-            .FindAsync(id);
-
-        // Không tìm thấy record
-        if (websitePicture == null)
+        if (file == null || file.Length == 0)
         {
-            return NotFound("Không tìm thấy ảnh trong database.");
+            return "Vui lòng chọn ảnh.";
         }
 
-        // Lấy đường dẫn file từ Image_Url
-        var imageUrl = websitePicture.Image_Url;
-
-        // Chuyển URL thành đường dẫn vật lý
-        var fileName = Path.GetFileName(
-            new Uri(imageUrl).LocalPath
-        );
-
-        var filePath = Path.Combine(
-            _environment.WebRootPath,
-            "uploads",
-            "website",
-            fileName
-        );
-
-        // Kiểm tra file có tồn tại không
-        if (System.IO.File.Exists(filePath))
+        var allowedExtensions = new[]
         {
-            // Xóa file vật lý
-            System.IO.File.Delete(filePath);
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp"
+    };
+
+        var extension = Path
+            .GetExtension(file.FileName)
+            .ToLowerInvariant();
+
+        if (!allowedExtensions.Contains(extension))
+        {
+            return "Chỉ cho phép JPG, JPEG, PNG hoặc WEBP.";
         }
 
-        // Xóa record trong database
-        _context.Website_Picture.Remove(websitePicture);
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new
+        if (file.Length > 5 * 1024 * 1024)
         {
-            message = "Đã xóa ảnh và record thành công.",
-            id = id
-        });
+            return "Ảnh không được vượt quá 5MB.";
+        }
+
+        return null;
     }
 
 }
