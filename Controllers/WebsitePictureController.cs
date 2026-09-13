@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
+using RealEstatePostingApi.DTO;
+
 
 [ApiController]
 [Route("[controller]")]
@@ -95,6 +97,68 @@ public class WebsitePictureController : ControllerBase
 
         // Chỉ xóa ảnh cũ sau khi DB update thành công
         DeleteImage(oldImageUrl);
+
+        return Ok(picture);
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> Patch(
+   int id,
+   [FromForm] IFormFile file,
+   [FromForm] UpdateWebsite_PictureDto updateDto    )
+    {
+        var picture = await _context.Website_Picture
+            .FindAsync(id);
+
+        if (picture == null)
+        {
+            return NotFound("Record không tồn tại.");
+        }
+
+        var error = ValidateImage(file);
+
+        if (error != null)
+        {
+            return BadRequest(error);
+        }
+
+        if (file != null || file.Length != 0)
+        {
+            // Lưu ảnh mới trước
+            var newImageUrl = await SaveImageAsync(file);
+
+            // Lưu URL ảnh cũ
+            var oldImageUrl = picture.Image_Url;
+
+            picture.Image_Url = newImageUrl;
+
+            // Chỉ xóa ảnh cũ sau khi DB update thành công
+            DeleteImage(oldImageUrl);
+
+            await _context.SaveChangesAsync();
+        }
+        
+        if(!string.IsNullOrEmpty(updateDto.Position))
+
+        {
+            picture.Position = updateDto.Position;
+           
+        }
+        // Update record
+       
+        if(updateDto.Display_Order != null)
+        {
+            picture.Display_Order = updateDto.Display_Order;
+        }
+
+        if(updateDto.Is_Active != null)
+        {
+            picture.Is_Active = updateDto.Is_Active;
+        }
+
+        picture.Updated_Date = DateTime.Now;
+
+        await _context.SaveChangesAsync();
 
         return Ok(picture);
     }
