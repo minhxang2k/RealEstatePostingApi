@@ -102,6 +102,12 @@ public class WebsitePictureController : ControllerBase
     }
 
     [HttpPatch("{id}")]
+<<<<<<<<< Temporary merge branch 1
+    public async Task<IActionResult> Patch(
+   int id,
+   [FromForm] IFormFile file,
+   [FromForm] UpdateWebsite_PictureDto updateDto    )
+=========
     public async Task<IActionResult> Patch(int id, [FromForm] IFormFile file, [FromForm] UpdateWebsite_PictureDto updateDto)
     {
         var picture = await _context.Website_Picture
