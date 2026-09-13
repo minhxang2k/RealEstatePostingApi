@@ -141,8 +141,7 @@ public class WebsitePictureController : ControllerBase
             picture.Position = updateDto.Position;
            
         }
-        // Update record
-       
+        
         if(updateDto.Display_Order != null)
         {
             picture.Display_Order = updateDto.Display_Order;
@@ -155,6 +154,7 @@ public class WebsitePictureController : ControllerBase
 
         picture.Updated_Date = DateTime.Now;
 
+        // Update record
         await _context.SaveChangesAsync();
 
         return Ok(picture);
