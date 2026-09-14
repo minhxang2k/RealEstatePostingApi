@@ -12,8 +12,8 @@
     {
         public string? Image_Url { get; set; }
         public string? Position { get; set; } 
-        public int Display_Order { get; set; }
-        public bool Is_Active { get; set; }
+        public int? Display_Order { get; set; }
+        public bool? Is_Active { get; set; }
     }
 
 }

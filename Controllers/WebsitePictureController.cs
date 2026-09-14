@@ -23,7 +23,8 @@ public class WebsitePictureController : ControllerBase
     // GET: WEBSITE_PICTURES
     public async Task<IActionResult> Index()
     {
-        return Ok(await _context.Website_Picture.ToListAsync());
+        var pictures = await _context.Website_Picture.ToListAsync();
+        return Ok(pictures);
     }
 
     [HttpPost("Upload")]
@@ -112,51 +113,50 @@ public class WebsitePictureController : ControllerBase
             return NotFound("Record không tồn tại.");
         }
 
-        var error = ValidateImage(file);
 
-        if (error != null)
+        if (file != null && file.Length > 0)
         {
-            return BadRequest(error);
-        }
+            var error = ValidateImage(file);
 
-        if (file != null || file.Length != 0)
-        {
+            if (error != null)
+            {
+                return BadRequest(error);
+            }
             // Lưu ảnh mới trước
-            var newImageUrl = await SaveImageAsync(file);
+            updateDto.Image_Url = await SaveImageAsync(file);
 
             // Lưu URL ảnh cũ
             var oldImageUrl = picture.Image_Url;
 
-            picture.Image_Url = newImageUrl;
+            picture.Image_Url = updateDto.Image_Url;
 
             // Chỉ xóa ảnh cũ sau khi DB update thành công
             DeleteImage(oldImageUrl);
-
-            await _context.SaveChangesAsync();
         }
-        
-        if(!string.IsNullOrEmpty(updateDto.Position))
+
+        if (!string.IsNullOrEmpty(updateDto.Position))
 
         {
             picture.Position = updateDto.Position;
            
         }
         
-        if(updateDto.Display_Order != null)
+        if(updateDto.Display_Order.HasValue)
         {
-            picture.Display_Order = updateDto.Display_Order;
+            picture.Display_Order = updateDto.Display_Order.Value;
         }
 
-        if(updateDto.Is_Active != null)
+        if (updateDto.Is_Active.HasValue &&
+        updateDto.Is_Active.Value != picture.Is_Active)
         {
-            picture.Is_Active = updateDto.Is_Active;
+            picture.Is_Active = updateDto.Is_Active.Value;
         }
 
         picture.Updated_Date = DateTime.Now;
 
         // Update record
         await _context.SaveChangesAsync();
-
+       
         return Ok(picture);
     }
 
