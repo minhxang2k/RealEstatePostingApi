@@ -104,10 +104,10 @@ public class AccountsController : Controller
 
     private string HashPassword(string input)
     {
-        using (SHA1 sha1 = SHA1.Create())
+        using (SHA256 sha256 = SHA256.Create())
         {
             byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-            byte[] hashBytes = sha1.ComputeHash(inputBytes);
+            byte[] hashBytes = sha256.ComputeHash(inputBytes);
             StringBuilder sb = new StringBuilder();
             foreach (byte b in hashBytes)
             {

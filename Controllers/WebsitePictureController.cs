@@ -1,10 +1,11 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
-
+using RealEstatePostingApi.Model;
+using System.Security.Cryptography;
+using System.Text;
 
 [ApiController]
 [Route("[controller]")]
@@ -40,7 +41,7 @@ public class WebsitePictureController : ControllerBase
             return BadRequest(error);
         }
 
-        var imageUrl = await SaveImageAsync(file);
+        var imageUrl = await SaveImageAsync(file, position);
 
         var picture = new Website_Picture
         {
@@ -82,7 +83,7 @@ public class WebsitePictureController : ControllerBase
         }
 
         // Lưu ảnh mới trước
-        var newImageUrl = await SaveImageAsync(file);
+        var newImageUrl = await SaveImageAsync(file, position);
 
         // Lưu URL ảnh cũ
         var oldImageUrl = picture.Image_Url;
@@ -97,7 +98,7 @@ public class WebsitePictureController : ControllerBase
         await _context.SaveChangesAsync();
 
         // Chỉ xóa ảnh cũ sau khi DB update thành công
-        DeleteImage(oldImageUrl);
+        DeleteImage(oldImageUrl, picture.Position);
 
         return Ok(picture);
     }
@@ -122,16 +123,15 @@ public class WebsitePictureController : ControllerBase
             {
                 return BadRequest(error);
             }
-            // Lưu ảnh mới trước
-            updateDto.Image_Url = await SaveImageAsync(file);
+           
 
             // Lưu URL ảnh cũ
             var oldImageUrl = picture.Image_Url;
+            DeleteImage(oldImageUrl, picture.Position);
 
             picture.Image_Url = updateDto.Image_Url;
-
-            // Chỉ xóa ảnh cũ sau khi DB update thành công
-            DeleteImage(oldImageUrl);
+            // Lưu ảnh mới trước
+            picture.Image_Url = await SaveImageAsync(file, updateDto.Position);
         }
 
         if (!string.IsNullOrEmpty(updateDto.Position))
@@ -172,7 +172,7 @@ public class WebsitePictureController : ControllerBase
             return NotFound("Record không tồn tại.");
         }
 
-        DeleteImage(picture.Image_Url);
+        DeleteImage(picture.Image_Url, picture.Position);
 
         _context.Website_Picture.Remove(picture);
 
@@ -185,14 +185,27 @@ public class WebsitePictureController : ControllerBase
         });
     }
 
-    private string GetFilePath(string imageUrl)
+    private string getPosition(string input)
+    {
+        switch (input.ToLower())
+        {
+            case "logo":
+                return "Logo";
+            case "banner":
+                return "Banner";
+            default:
+                return "Website";
+        }
+    }
+
+    private string GetFilePath(string imageUrl, string position)
     {
         var fileName = Path.GetFileName(imageUrl);
-
+        var path = getPosition(position);
         return Path.Combine(
             _environment.WebRootPath,
             "uploads",
-            "website",
+            path,
             fileName
         );
     }
@@ -211,16 +224,16 @@ public class WebsitePictureController : ControllerBase
     //    );
     //}
 
-    private bool ImageExists(string imageUrl)
+    private bool ImageExists(string imageUrl, string position)
     {
-        var filePath = GetFilePath(imageUrl);
+        var filePath = GetFilePath(imageUrl, position);
 
         return System.IO.File.Exists(filePath);
     }
 
-    private void DeleteImage(string imageUrl)
+    private void DeleteImage(string imageUrl, string position)
     {
-        var filePath = GetFilePath(imageUrl);
+        var filePath = GetFilePath(imageUrl, position);
 
         if (System.IO.File.Exists(filePath))
         {
@@ -228,14 +241,16 @@ public class WebsitePictureController : ControllerBase
         }
     }
 
-    private async Task<string> SaveImageAsync(IFormFile file)
+    private async Task<string> SaveImageAsync(IFormFile file, string position)
     {
+        string path = getPosition(position);
+
         var uploadFolder = Path.Combine(
             _environment.WebRootPath,
             "uploads",
-            "website"
+            path
         );
-
+      
         if (!Directory.Exists(uploadFolder))
         {
             Directory.CreateDirectory(uploadFolder);
@@ -245,7 +260,9 @@ public class WebsitePictureController : ControllerBase
             .GetExtension(file.FileName)
             .ToLowerInvariant();
 
-        var fileName = $"{Guid.NewGuid()}{extension}";
+        // Hash the file name to avoid conflicts
+        var hashedFileName = await CalculateFileHashAsync(file);
+        var fileName = $"{hashedFileName}{extension}";
 
         var filePath = Path.Combine(
             uploadFolder,
@@ -259,7 +276,7 @@ public class WebsitePictureController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        return $"/uploads/website/{fileName}";
+        return $"/uploads/{path}/{fileName}";
     }
 
     private string? ValidateImage(IFormFile file)
@@ -292,6 +309,17 @@ public class WebsitePictureController : ControllerBase
         }
 
         return null;
+    }
+
+    private async Task<string> CalculateFileHashAsync(IFormFile file)
+    {
+        using var sha256 = SHA256.Create();
+
+        using var stream = file.OpenReadStream();
+
+        var hash = await sha256.ComputeHashAsync(stream);
+
+        return Convert.ToHexString(hash).ToLowerInvariant();
     }
 
 }
