@@ -16,9 +16,18 @@ builder.Services.AddOpenApi();
 // Add Entity Framework DbContext
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var conString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-    throw new InvalidOperationException("Connection string 'DefaultConnection'" 
-    +" not found.");
+//var conString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+//    throw new InvalidOperationException("Connection string 'DefaultConnection'" 
+//    +" not found.");
+
+var conString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' not found."
+    );
+
+Console.WriteLine("==================================");
+Console.WriteLine($"DB Connection: {conString}");
+Console.WriteLine("==================================");
 
 // Add connection string to the DbContext
 builder.Services.AddDbContext<AppDbContext>(options => 
