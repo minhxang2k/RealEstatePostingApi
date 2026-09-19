@@ -45,7 +45,7 @@ public class WebsiteTrafficController : Controller
 
     private int visitCount = 0;
     private DateOnly visitDate = DateOnly.FromDateTime(DateTime.Now);
-   
+
 
     // POST: WEBSITE_TRAFFICS/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
