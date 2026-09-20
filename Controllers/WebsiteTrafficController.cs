@@ -72,7 +72,8 @@ public class WebsiteTrafficController : Controller
     }
 
     // GET: WEBSITE_TRAFFICS/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<Website_Traffic>> Edit(int? id, [FromBody] UpdateWebsiteTrafficDto updateDto)
     {
         if (id == null)
         {
@@ -84,7 +85,17 @@ public class WebsiteTrafficController : Controller
         {
             return NotFound();
         }
-        return View(website_traffic);
+        if(updateDto == null)
+        {
+            return BadRequest("Update data is required.");
+        }
+
+        if(updateDto.Visit_Count.HasValue && updateDto.Visit_Count.Value != 0)
+        {
+            website_traffic.Visit_Count = updateDto.Visit_Count.Value;
+        }
+        
+        return Ok(website_traffic);
     }
 
     // POST: WEBSITE_TRAFFICS/Edit/5
