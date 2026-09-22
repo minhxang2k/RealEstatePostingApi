@@ -32,6 +32,6 @@ namespace RealEstatePostingApi.Services
                 await Task.Delay(TimeSpan.FromHours(24), stoppingToken); // Run once a day
             }
         }
-    {
+    
     }
 }
