@@ -93,23 +93,4 @@ public class WebsiteTrafficController : Controller
         
         return Ok(website_traffic);
     }
-
- 
-   
-    public async Task<IActionResult> DeleteConfirmed(int? id)
-    {
-        var website_traffic = await _context.Website_Traffic.FindAsync(id);
-        if (website_traffic != null)
-        {
-            _context.Website_Traffic.Remove(website_traffic);
-        }
-
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    private bool Website_TrafficExists(int? id)
-    {
-        return _context.Website_Traffic.Any(e => e.Id == id);
-    }
 }
