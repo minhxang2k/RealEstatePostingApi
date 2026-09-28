@@ -26,7 +26,7 @@ public class UsersController : Controller
         return Ok(user);
     }
 
-    [HttpPatch("{id}")]
+    [HttpPatch("Update/{id}")]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDTO userDto)
     {
         var user = await _context.User.FirstOrDefaultAsync(u => u.Account_Id == id);

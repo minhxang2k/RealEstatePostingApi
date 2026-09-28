@@ -20,10 +20,25 @@ public class AccountsController : Controller
     }
 
     // GET: ACCOUNTS
-    [HttpGet]
-    public async Task<ActionResult<Account>> Index()    
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<Account>> GetById(int id)    
     {
-        return View(await _context.Account.ToListAsync());
+        var account = await _context.Account.Include(u => u.User).FirstOrDefaultAsync(a => a.Id == id);
+        if (account == null)
+        {
+            return NotFound("Account not found");
+        }
+        return Ok( new
+        {
+            id = account.Id,
+            email = account.Email,
+            roleId = account.Role_Id,
+            isActive = account.Is_Active,
+            createdDate = account.Created_Date,
+            username = account.User?.Username
+        }); 
+        
     }
 
     [HttpPost("Login")]
@@ -78,9 +93,9 @@ public class AccountsController : Controller
         {
             Account = account,
             Username = dto.user.Username,
-            Phone_Number = string.Empty,
+            Phone_Number = dto.user.Phone_Number,
             Avatar_Url = string.Empty,
-            Sex = string.Empty,
+            Sex = dto.user.Sex,
             Created_Date = DateTime.Now
         };
 
