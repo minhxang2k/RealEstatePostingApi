@@ -54,10 +54,12 @@ namespace RealEstatePostingApi.Context
                     .HasForeignKey<User>(u => u.Account_Id)
                     .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(a => a.Setting)
-                    .WithOne(s => s.Account)
+                    .WithOne(s => s.Account) 
                     .HasForeignKey<Setting>(s => s.Account_Id)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+        
 
             modelBuilder.Entity<Save_Listing>(entity =>
             {

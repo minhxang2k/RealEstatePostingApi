@@ -2,64 +2,171 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
 using RealEstatePostingApi.Model;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+
 
 [ApiController]
 [Route("[controller]")]
 public class AccountsController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly IConfiguration _configuration;
 
-    public AccountsController(AppDbContext context)
+    public AccountsController(
+        AppDbContext context,
+        IConfiguration configuration)
     {
         _context = context;
+        _configuration = configuration;
+    }
+
+    private string GenerateJwtToken(Account account)
+    {
+        var jwtSettings = _configuration
+            .GetSection("JWT");
+
+        var key = jwtSettings["Key"];
+
+        var issuer = jwtSettings["Issuer"];
+        var audience = jwtSettings["Audience"];
+        var expireMinutes = jwtSettings["ExpireMinutes"];
+
+        if (string.IsNullOrEmpty(key))
+            throw new Exception("JWT Key is missing.");
+
+        if (string.IsNullOrEmpty(issuer))
+            throw new Exception("JWT Issuer is missing.");
+
+        if (string.IsNullOrEmpty(audience))
+            throw new Exception("JWT Audience is missing.");
+
+        if (account.Role == null)
+            throw new Exception("Account Role is null.");
+
+
+        var claims = new List<Claim>
+    {
+        new Claim(
+            ClaimTypes.NameIdentifier,
+            account.Id.ToString()
+        ),
+
+        new Claim(
+            ClaimTypes.Email,
+            account.Email
+        ),
+
+        new Claim(
+            ClaimTypes.Role,
+            account.Role.Role
+        )
+    };
+
+        var securityKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(key!)
+        );
+
+        var credentials = new SigningCredentials(
+            securityKey,
+            SecurityAlgorithms.HmacSha256
+        );
+
+        var token = new JwtSecurityToken(
+            issuer: jwtSettings["Issuer"],
+            audience: jwtSettings["Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddDays(
+                double.Parse(jwtSettings["ExpiresDays"]!)
+            ),
+            signingCredentials: credentials
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     // GET: ACCOUNTS
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Account>> GetById(int id)    
     {
-        var account = await _context.Account.Include(u => u.User).FirstOrDefaultAsync(a => a.Id == id);
+        var account = await _context.Account.Include(a => a.Role).Include(a => a.User).FirstOrDefaultAsync(a => a.Id == id);
         if (account == null)
         {
             return NotFound("Account not found");
         }
-        return Ok( new
+        //var token = GenerateJwtToken(account);
+
+        return Ok( new AccountResponseDto
         {
-            id = account.Id,
-            email = account.Email,
-            roleId = account.Role_Id,
-            isActive = account.Is_Active,
-            createdDate = account.Created_Date,
-            username = account.User?.Username
+            //token = token,
+            Id = account.Id,
+            Email = account.Email,
+            RoleId = account.Role_Id,
+            Role = account.Role?.Role,
+            IsActive = account.Is_Active,
+            CreatedDate = account.Created_Date,
+            Username = account.User?.Username,
+            Sex = account.User?.Sex
+
         }); 
         
     }
 
     [HttpPost("Login")]
     [AllowAnonymous]
-    public async Task<ActionResult<Account>> Login([FromBody] LoginDto loginDto)
+    public async Task<ActionResult> Login([FromBody] LoginDto loginDto)
     {
-        try
-        {
-            var existingAccount = await _context.Account
-                .FirstOrDefaultAsync(a => a.Email == loginDto.Username && a.Password_Hash == HashPassword(loginDto.Password));
+        var tokens = new TokenRespond();
+            var existingAccount = await _context.Account.Include(a => a.Role).Include(a => a.User)
+                .FirstOrDefaultAsync(a => a.Email == loginDto.Email);
+
+            Console.WriteLine(existingAccount);
             if (existingAccount == null)
             {
                 return Unauthorized("Invalid email or password.");
             }
-            return Ok(existingAccount);
-        }
-        catch (Exception ex)
+
+            var hashedPassword = HashPassword(loginDto.Password);
+
+            if (existingAccount.Password_Hash != hashedPassword)
+            {
+                return Unauthorized("Password is incorrect");
+            }
+
+            if(existingAccount.Is_Active == false)
+            {
+                return Unauthorized("Account is inactive.");
+            }
+
+        tokens.token = GenerateJwtToken(existingAccount);
+        return Ok(new AccountLoginResponseDto
         {
-            throw new Exception($"An error occurred while logging in: {ex.Message}");
-        }
+           
+            Id = existingAccount.Id,
+            Email = existingAccount.Email,
+            RoleId = existingAccount.Role_Id,
+            Role = existingAccount.Role?.Role,
+            IsActive = existingAccount.Is_Active,
+            //CreatedDate = existingAccount.Created_Date,
+            Username = existingAccount.User?.Username,
+            Sex = existingAccount.User?.Sex,
+            Token = tokens.token,
+        });
+
     }
+
+    private class TokenRespond
+    {
+        public string? token;
+    }
+
     public class RegisterDto
     {
        public CreateAccountDto account { get; set; } 
@@ -67,7 +174,7 @@ public class AccountsController : Controller
     }
 
     [HttpPost("Register")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult> Register([FromBody] RegisterDto dto)
     {
         if (dto == null)
@@ -83,7 +190,7 @@ public class AccountsController : Controller
         {
             Email = dto.account.Email,
             Password_Hash = HashPassword(dto.account.Password),
-            Role_Id = 1, //admin role
+            Role_Id = dto.account.Role_Id, //admin role
             Auth_Provider = dto.account.Auth_Provider,
             Is_Active = true,
             Created_Date = DateTime.Now
@@ -131,6 +238,21 @@ public class AccountsController : Controller
             return sb.ToString();
         }
     }
+
+//    {
+//    "Account":{
+//        "Email":"admin4",
+//        "Password":"2222",
+//        "Role_Id":1,
+//        "Auth_Provider":"local"
+//    },
+
+//    "User":{
+//        "Username":"admin3",
+//        "Phone_Number":"0987654321",
+//        "Sex":"male"
+//    }
+//}
 
 
     //    // GET: ACCOUNTS/Details/5
