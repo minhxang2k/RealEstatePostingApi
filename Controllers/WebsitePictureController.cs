@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RealEstatePostingApi.Context;
@@ -29,6 +30,7 @@ public class WebsitePictureController : ControllerBase
     }
 
     [HttpPost("Upload")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Upload(
         [FromForm] IFormFile file,
         [FromForm] string position,
@@ -60,6 +62,7 @@ public class WebsitePictureController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(
     int id,
     [FromForm] IFormFile file,
@@ -104,6 +107,7 @@ public class WebsitePictureController : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Patch(int id, [FromForm] IFormFile file, [FromForm] UpdateWebsite_PictureDto updateDto)
     {
         var picture = await _context.Website_Picture
@@ -162,6 +166,7 @@ public class WebsitePictureController : ControllerBase
 
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var picture = await _context.Website_Picture

@@ -1,8 +1,9 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
+using RealEstatePostingApi.Model;
 
 [ApiController]
 [Route("[controller]")]
@@ -39,17 +40,13 @@ public class ContactsController : Controller
         return View(contact);
     }
 
-    // GET: CONTACTS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
+   
 
     // POST: CONTACTS/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Create([Bind("Id,Username,Phone_Number,Created_Date,Updated_Date")] Contact contact)
     {
         if (ModelState.IsValid)
@@ -81,7 +78,7 @@ public class ContactsController : Controller
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Edit(int? id, [Bind("Id,Username,Phone_Number,Created_Date,Updated_Date")] Contact contact)
     {
         if (id != contact.Id)
@@ -113,6 +110,8 @@ public class ContactsController : Controller
     }
 
     // GET: CONTACTS/Delete/5
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -132,7 +131,7 @@ public class ContactsController : Controller
 
     // POST: CONTACTS/Delete/5
     [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         var contact = await _context.Contact.FindAsync(id);

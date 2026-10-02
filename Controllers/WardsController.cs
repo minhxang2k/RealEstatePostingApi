@@ -1,10 +1,11 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
+using Microsoft.Identity.Client;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
-using Microsoft.Identity.Client;
+using RealEstatePostingApi.Model;
 
 [ApiController]
 [Route("[controller]")]
@@ -58,6 +59,7 @@ public class WardsController : ControllerBase
 
     // GET: WARDS/Create
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Ward>> Create([FromBody] CreateWardDto dto)
     {
         try
@@ -78,6 +80,7 @@ public class WardsController : ControllerBase
         }
     }
     [HttpPatch("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateWardDto dto)
     {
         try
@@ -111,7 +114,8 @@ public class WardsController : ControllerBase
 
     }
     // POST: WARDS/Delete/5
-    [HttpDelete]
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         var ward = await _context.Ward.FindAsync(id);

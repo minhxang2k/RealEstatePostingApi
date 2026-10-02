@@ -1,9 +1,10 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
+using RealEstatePostingApi.Model;
 
 [ApiController]
 [Route("[controller]")]
@@ -54,6 +55,7 @@ public class CitiesController : Controller
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<City>> Create([FromBody] CreateCityDTO dto)
     {
         try
@@ -81,6 +83,7 @@ public class CitiesController : Controller
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<City>> Update(int? id, UpdateCityDTO updateCityDTO)
     {
         try
@@ -103,6 +106,7 @@ public class CitiesController : Controller
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteCity(int id)
     {
         try

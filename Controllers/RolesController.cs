@@ -1,9 +1,10 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
+using RealEstatePostingApi.Model;
 
 [ApiController]
 [Route("[controller]")]
@@ -55,6 +56,7 @@ public class RolesController : Controller
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Roles>> Create([FromBody] CreateRoleDTO dto)
     {
         try
@@ -83,6 +85,7 @@ public class RolesController : Controller
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Roles>> Update(int? id, UpdateRoleDTO updateRoleDTO)
     {
         try
@@ -108,6 +111,7 @@ public class RolesController : Controller
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteRole(int id)
     {
         try

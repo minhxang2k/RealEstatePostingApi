@@ -1,9 +1,10 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
+using RealEstatePostingApi.Model;
 
 [ApiController]
 [Route("[controller]")]
@@ -16,6 +17,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("{id}")]
+
     public async Task<IActionResult> GetUserByAccountId(int id)
     {
         var user = await _context.User.FirstOrDefaultAsync(u  => u.Account_Id == id);
@@ -27,6 +29,7 @@ public class UsersController : Controller
     }
 
     [HttpPatch("Update/{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDTO userDto)
     {
         var user = await _context.User.FirstOrDefaultAsync(u => u.Account_Id == id);

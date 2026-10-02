@@ -1,10 +1,11 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
+using Microsoft.IdentityModel.Tokens;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
-using Microsoft.IdentityModel.Tokens;
+using RealEstatePostingApi.Model;
 
 [ApiController]
 [Route("[controller]")]
@@ -47,6 +48,7 @@ public class WebsiteTrafficController : Controller
     private DateOnly visitDate = DateOnly.FromDateTime(DateTime.Now);
 
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Website_Traffic>> Create()
     {
         
@@ -69,6 +71,7 @@ public class WebsiteTrafficController : Controller
 
     // GET: WEBSITE_TRAFFICS/Edit/5
     [HttpPatch("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Website_Traffic>> Edit(int? id, [FromBody] UpdateWebsiteTrafficDto updateDto)
     {
         if (id == null)

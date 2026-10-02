@@ -1,9 +1,10 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
+using RealEstatePostingApi.Model;
 
 [ApiController]
 [Route("[controller]")]
@@ -56,6 +57,7 @@ public class DistrictsController : ControllerBase
 
     // GET: DISTRICTS/Create
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<District>> Create([FromBody] CreateDistrictDto dto)
     {
         try
@@ -85,6 +87,7 @@ public class DistrictsController : ControllerBase
 
     // GET: DISTRICTS/Edit/5
     [HttpPatch("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Edit(int? id, [FromBody] UpdateDistrictDto dto)
     {
         try
@@ -133,6 +136,7 @@ public class DistrictsController : ControllerBase
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     
      [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteDistrict(int id)
     {
         try

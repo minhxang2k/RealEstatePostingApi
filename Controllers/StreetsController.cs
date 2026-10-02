@@ -1,10 +1,11 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RealEstatePostingApi.Model;
+using Microsoft.Identity.Client;
 using RealEstatePostingApi.Context;
 using RealEstatePostingApi.DTO;
-using Microsoft.Identity.Client;
+using RealEstatePostingApi.Model;
 
 [ApiController]
 [Route("[controller]")]
@@ -58,6 +59,7 @@ public class StreetsController : ControllerBase
 
     // GET: STREETS/Create
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Street>> Create([FromBody] CreateStreetDto dto)
     {
         try
@@ -78,6 +80,7 @@ public class StreetsController : ControllerBase
         }
     }
     [HttpPatch("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateStreetDto dto)
     {
         try
@@ -110,6 +113,7 @@ public class StreetsController : ControllerBase
     }
     // POST: STREETS/Delete/5
     [HttpDelete]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         var street = await _context.Street.FindAsync(id);
