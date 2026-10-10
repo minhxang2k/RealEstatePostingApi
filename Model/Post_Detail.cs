@@ -9,7 +9,7 @@
         public int BedRoom { get; set; }
         public string House_Direction { get; set; } = string.Empty;
         public decimal Facade { get; set; }
-        public int Total_Floor { get; set; }
+        public int Total_Floors { get; set; }
         public DateTime Created_Date { get; set; }
         public DateTime? Updated_Date { get; set; }
 

@@ -124,8 +124,8 @@ namespace RealEstatePostingApi.Context
                     .HasForeignKey<Post_Detail>(pd => pd.Post_Id)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasMany(p => p.Post_Pictures)
-                    .WithOne(pp => pp.Post)
+                entity.HasMany(pp => pp.Post_Pictures)
+                    .WithOne(p => p.Post)
                     .HasForeignKey(pp => pp.Post_Id)
                     .OnDelete(DeleteBehavior.Cascade);
 
