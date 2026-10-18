@@ -19,7 +19,7 @@ A .NET 10 Web API for managing real-estate postings (authentication, EF Core per
 
 1. Clone and open repository
 
-   git clone https://github.com/Huynguyen135/RealEstatePostingApi
+   git clone https://github.com/minhxang2k/RealEstatePostingApi
    cd RealEstatePostingApi
 
 2. Restore and build
