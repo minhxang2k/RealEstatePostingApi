@@ -8,7 +8,7 @@
         public string Address { get; set; }
         public  decimal Latitude { get; set; }
         public decimal  Longitude { get; set; }
-        public int Price { get; set; }
+        public long Price { get; set; }
         public int City_Id { get; set; }
         public int District_Id { get; set; }
         public int ward_Id { get; set; }

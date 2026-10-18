@@ -9,7 +9,7 @@
         public string Address { get; set; } = string.Empty;
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
-        public int Price { get; set; }
+        public long Price { get; set; }
         public int City_Id { get; set; } //foreign key to City
         public int District_Id { get; set; } //foreign key to District
         public int Ward_Id { get; set; } //foreign key to Ward
