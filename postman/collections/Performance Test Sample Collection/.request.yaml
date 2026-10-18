@@ -1,0 +1,135 @@
+$kind: http-request
+name: ""
+url: http://localhost:5293/Posts/List/7
+method: GET
+body:
+  type: formdata
+  content:
+    - type: text
+      key: Post.Account_Id
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post.Title
+      value: post test 1
+      disabled: false
+    - type: text
+      key: Post.Content
+      value: sssssaaaaaaaaaaaaaaaaaaaaaaaffffffffffff test 123432231
+      disabled: false
+    - type: text
+      key: Post.Address
+      value: 12342321/212 skibidi sigma
+      disabled: false
+    - type: text
+      key: Post.Latitude
+      value: 12,123
+      disabled: false
+    - type: text
+      key: Post.Longitude
+      value: 21,432
+      disabled: false
+    - type: text
+      key: Post.Price
+      value: "20000000"
+      disabled: false
+    - type: text
+      key: Post.City_Id
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post.District_Id
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post.ward_Id
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post.street_Id
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post.Property_Type_Id
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post.transaction_Type_Assignment_Id
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post.Is_Recommended
+      value: "false"
+      disabled: false
+    - type: text
+      key: Post.Status_Id
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post_Detail.Square
+      value: "50"
+      disabled: false
+    - type: text
+      key: Post_Detail.Bedroom
+      value: "2"
+      disabled: false
+    - type: text
+      key: Post_Detail.Bathroom
+      value: "1"
+      disabled: false
+    - type: text
+      key: Post_Detail.House_Direction
+      value: North
+      disabled: false
+    - type: text
+      key: Post_Detail.Facade
+      value: "5"
+      disabled: false
+    - type: text
+      key: Post_Detail.total_Floor
+      value: "3"
+      disabled: false
+    - type: text
+      key: Post_Pictures[0].Image_Url
+      value: ""
+      disabled: false
+    - type: text
+      key: Post_Pictures[0].Picture_Type
+      value: thumbnail
+      disabled: false
+    - type: text
+      key: Post_Pictures[0].Is_Thumbnail
+      value: "true"
+      disabled: false
+    - type: text
+      key: Post_Pictures[1].Image_Url
+      value: ""
+      disabled: false
+    - type: text
+      key: Post_Pictures[1].Picture_Type
+      value: picture
+      disabled: false
+    - type: text
+      key: Post_Pictures[1].Is_Thumbnail
+      value: "false"
+      disabled: false
+    - type: file
+      key: videofile
+      src:
+        - /C:/Users/henry/Videos/Captures/Chung _ ＭỘＴ ＣÁＩ ＨＡＮＧ - Discord 2026-01-01 19-46-25.mp4
+      disabled: false
+    - type: file
+      key: picturefile
+      src:
+        - /C:/Users/henry/Videos/Captures/Genshin Impact 07-Mar-26 10_45_42.png
+      disabled: false
+    - type: file
+      key: picturefile
+      src:
+        - /C:/Users/henry/Videos/Captures/Genshin Impact 11-Feb-26 14_57_39.png
+      disabled: false
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbjQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJhZG1pbiIsImV4cCI6MTc5MTcwNzE2NiwiaXNzIjoiUmVhbEVzdGF0ZVBvc3RpbmdBcGkiLCJhdWQiOiJSZWFsRXN0YXRlUG9zdGluZ0NsaWVudCJ9.WYtyljNnSWCwWeuKilOISdumh8wT-gOsWnNBBuKLCFA
+order: 1000

@@ -20,10 +20,79 @@ public class PostsController : Controller
     private readonly IWebHostEnvironment _environment;
 
     // GET: POSTS
-    [HttpGet]
-    public async Task<IActionResult> Index()
+
+    [HttpGet("List")]
+    [RequestSizeLimit(2_147_483_648L)]          // 2 GB — matches ValidateVideo's per-file limit
+    [RequestFormLimits(MultipartBodyLengthLimit = 2_147_483_648L)]
+    public async Task<IActionResult> List()
     {
         return View(await _context.Post.ToListAsync());
+    }
+
+    [HttpGet("List/{id}")]
+    [RequestSizeLimit(2_147_483_648L)]          // 2 GB — matches ValidateVideo's per-file limit
+    [RequestFormLimits(MultipartBodyLengthLimit = 2_147_483_648L)]
+    public async Task<IActionResult> List(int id)
+    {
+        var posts = await _context.Post
+            .AsNoTracking()
+            .Include(p => p.Post_Details)
+            .Include(p => p.Post_Pictures)
+            .Include(p => p.Post_Video)
+            .OrderByDescending(p => p.Created_Date)
+            .Select(p => new
+            {
+                p.Id,
+                p.Title,
+                p.Content,
+                p.Address,
+                p.Latitude,
+                p.Longitude,
+                p.Price,
+                p.City_Id,
+                p.District_Id,
+                p.Ward_Id,
+                p.Street_Id,
+                p.Property_Type_Id,
+                p.Transaction_Type_Assignment_Id,
+                p.Is_Recommended,
+                p.Status_Id,
+                p.View_Count,
+                p.Created_Date,
+                p.Updated_Date,
+
+                Post_Detail = p.Post_Details == null
+                    ? null
+                    : new
+                    {
+                        p.Post_Details.Square,
+                        p.Post_Details.BedRoom,
+                        p.Post_Details.bathRoom,
+                        p.Post_Details.House_Direction,
+                        p.Post_Details.Facade,
+                        p.Post_Details.Total_Floors
+                    },
+
+                Post_Pictures = p.Post_Pictures
+                    .Select(pic => new
+                    {
+                        pic.Id,
+                        pic.Image_Url,
+                        pic.Picture_Type,
+                        pic.Is_Thumbnail
+                    })
+                    .ToList(),
+
+                Post_Video = p.Post_Video == null
+                ? null
+                : new
+                {
+                    p.Post_Video.Id,
+                    p.Post_Video.Video_Url
+                }
+            }).FirstOrDefaultAsync(p => p.Id == id);
+
+        return Ok(posts);
     }
 
     public class UploadPost

@@ -1,0 +1,15 @@
+id: 01a13e83-2591-72cd-85bc-232c40847bd2
+version: 1
+name: real-estate-posting-api
+slug: real-estate-posting
+enableSession: true
+protocol: http
+port: 5294
+autoRestartOnChange: true
+logging:
+  level: verbose
+  showBody: true
+scenarios:
+  - name: default
+    path: ./default.js
+    default: true
